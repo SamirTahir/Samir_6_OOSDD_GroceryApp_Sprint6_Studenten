@@ -4,7 +4,7 @@ Dit is de startversie voor studenten van sprint 6.
 UC17 Boodschappenlijst in database is compleet uitgewerkt.  
 
 UC18 BoodschappenlijstItems in database.  
-- Gebruik het voorbeeld van UC17 om zelf de GroceryListItemsRepository tew ijzigen zodat boodschappenlijstitems uit de database komen.  
+- Gebruik het voorbeeld van UC17 om zelf de GroceryListItemsRepository te wijzigen zodat boodschappenlijstitems uit de database komen.  
 
 UC19 Product in database en nieuw product aanmaken --> zelfstandig uitwerken.  
 - Volg UC17 om producten uit de database te kunnen halen.  
