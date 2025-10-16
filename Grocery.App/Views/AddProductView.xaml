@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Grocery.App.Views.AddProductView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:viewmodels="clr-namespace:Grocery.App.ViewModels"
+    x:DataType="viewmodels:AddProductViewModel"
+    Title="Add Product">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Save" Command="{Binding SaveCommand}" />
+        <ToolbarItem Text="Cancel" Command="{Binding CancelCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+            <Label Text="Product Name" VerticalOptions="Center" BackgroundColor="#9880E5" />
+            <Entry Placeholder="Name" Text="{Binding Name}" />
+
+            <Label Text="Product Stock" VerticalOptions="Center" BackgroundColor="#9880E5" />
+            <Entry Placeholder="Stock" Keyboard="Numeric" Text="{Binding Stock}" />
+
+            <HorizontalStackLayout Spacing="8">
+                <Label Text="THT datum" VerticalOptions="Center" />
+                <DatePicker Date="{Binding ShelfLife}" HorizontalOptions="FillAndExpand" />
+            </HorizontalStackLayout>
+
+            <Label Text="Price" VerticalOptions="Center" BackgroundColor="#9880E5" />
+            <Entry Placeholder="Price (e.g. 1.99)" Keyboard="Numeric" Text="{Binding Price}" />
+
+            <Label Text="{Binding Message}" TextColor="Red" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -4,51 +4,61 @@
              xmlns:vm="clr-namespace:Grocery.App.ViewModels"
              x:Class="Grocery.App.Views.ProductView"
              Title="ProductView">
-    
+
     <Shell.TitleView>
         <Grid>
             <Label Text="Producten" FontSize="Large" HorizontalOptions="Center" VerticalOptions="Center" />
         </Grid>
     </Shell.TitleView>
 
-    <Border Stroke="#C49B33" StrokeThickness="4" Padding="10" Margin="10" HorizontalOptions="Center">
+    <Border Stroke="#C49B33" StrokeThickness="4" Padding="1" Margin="20" HorizontalOptions="Center" >
         <CollectionView ItemsSource="{Binding Products}" Margin="20" HorizontalOptions="Center">
             <CollectionView.ItemsLayout>
-                <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="5" />
             </CollectionView.ItemsLayout>
             <CollectionView.Header>
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="0.8*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Label Text="Naam van het product" Grid.Column="0" FontAttributes="Bold"/>
-                    <Label Text="Voorraad" Grid.Column="1" FontAttributes="Bold"/>
-                    <Label Text="THT datum" Grid.Column="2" HorizontalTextAlignment="End" FontAttributes="Bold"/>
-                    <Label Text="Prijs" Grid.Column="3" HorizontalTextAlignment="End" FontAttributes="Bold"/>
+                    <Border Stroke="#9880E5" Background= "#9880E5" Grid.Column="0" Padding="2">
+                        <Label Text="Naam van het product" FontAttributes="Bold"/>
+                    </Border>
+                    <Border Stroke="#9880E5" Background= "#9880E5" Grid.Column="1" Padding="2">
+                        <Label Text="Voorraad" HorizontalTextAlignment="Start" FontAttributes="Bold"/>
+                    </Border>
+                    <Border Stroke="#9880E5" Background= "#9880E5" Grid.Column="2" Padding="2">
+                        <Label Text="THT datum" HorizontalTextAlignment="Start" FontAttributes="Bold"/>
+                    </Border>
+                    <Border Stroke="#9880E5" Background= "#9880E5" Grid.Column="3" Padding="2">
+                        <Label Text="Prijs" HorizontalTextAlignment="Start" FontAttributes="Bold"/>
+                    </Border>
                 </Grid>
             </CollectionView.Header>
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="0.8*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Text="{Binding Name}"/>
-                        <Label Grid.Column="1" Text="{Binding Stock, StringFormat='{}{0:F0} op voorraad'}" HorizontalOptions="End">
-                            <Label.Triggers>
-                                <DataTrigger TargetType="Label" Binding="{Binding Stock}" Value="0">
-                                    <Setter Property="Text" Value="niet op voorraad" />
-                                </DataTrigger>
-                            </Label.Triggers>
-                        </Label>
-                        <Label Grid.Column="2" Text="{Binding ShelfLife}" HorizontalOptions="End"/>
-                        <Label Grid.Column="3" Text="{Binding Price}" HorizontalOptions="End"/>
+                        <Border Stroke="White" Background="DimGray" Grid.Column="0" Padding="2">
+                            <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                        </Border>
+                        <Border Stroke="White" Background="DimGray" Grid.Column="1" Padding="2">
+                            <Label Text="{Binding Stock, StringFormat='{}{0:F0} op voorraad'}" FontAttributes="Bold"/>
+                        </Border>
+                        <Border Stroke="White" Background="DimGray" Grid.Column="2" Padding="2">
+                            <Label Text="{Binding ShelfLife}" FontAttributes="Bold"/>
+                        </Border>
+                        <Border Stroke="White" Background="DimGray" Grid.Column="3" Padding="2">
+                            <Label Text="{Binding Price, StringFormat='{}{0:C}'}" FontAttributes="Bold"/>
+                        </Border>
                     </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>

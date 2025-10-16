@@ -6,42 +6,54 @@
              x:Class="Grocery.App.Views.CategoriesView"
              x:DataType="vm:CategoriesViewModel"
              Title="CategoriesView">
-    <Shell.TitleView>
+
+    
+        <Shell.TitleView>
         <Grid>
-            <Label Text="Product Categoriën" FontSize="Large" HorizontalOptions="Center" VerticalOptions="Center" />
+            <Label Text="Productcategorieën" FontSize="Large" HorizontalOptions="Start" VerticalOptions="Center" />
         </Grid>
     </Shell.TitleView>
 
-    <Border Stroke="#C49B33" StrokeThickness="4" Padding="10" Margin="10" HorizontalOptions="Center">
+    <ScrollView>
+        <Border Stroke="#C49B33" StrokeThickness="4" Padding="1" Margin="20" HorizontalOptions="Center">
         <CollectionView ItemsSource="{Binding Categories}" Margin="20" HorizontalOptions="Center"
                 SelectionMode="Single"
                 SelectionChangedCommand="{Binding SelectCategoryCommand}"
                 SelectionChangedCommandParameter="{Binding Source={RelativeSource Self}, Path=SelectedItem}">
             <CollectionView.ItemsLayout>
-                <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="5" />
             </CollectionView.ItemsLayout>
             <CollectionView.Header>
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0.5*"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="0.8*"/>
+                        <ColumnDefinition Width="8*"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Text="Id" FontAttributes="Bold" HorizontalOptions="End" Margin="0,0,10,0"/>
-                    <Label Grid.Column="1" Text="Naam" FontAttributes="Bold"/>
+                    <Border Stroke="#9880E5" Background="#9880E5" Grid.Column="0" Padding="2">
+                        <Label Text="#" FontAttributes="Bold"/>
+                    </Border>
+                    <Border Stroke="#9880E5" Background="#9880E5" Grid.Column="1" Padding="2">
+                        <Label Text="Naam" HorizontalTextAlignment="Start" FontAttributes="Bold"/>
+                    </Border>
                 </Grid>
             </CollectionView.Header>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="m:Category">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="0.5*"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="0.8*"/>
+                            <ColumnDefinition Width="8*"/>
                         </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Text="{Binding Id}" HorizontalOptions="End" Margin="0,0,10,0"/>
-                        <Label Grid.Column="1" Text="{Binding Name}"/>
+                        <Border Stroke="White" Background="DimGray" Grid.Column="0" Padding="2">
+                            <Label Text="{Binding Id}" FontAttributes="Bold"/>
+                        </Border>
+                        <Border Stroke="White" Background="DimGray" Grid.Column="1" Padding="2">
+                            <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                        </Border>
                     </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
     </Border>
+    </ScrollView>
 </ContentPage>
