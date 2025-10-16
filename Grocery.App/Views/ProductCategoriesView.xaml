@@ -6,6 +6,7 @@
              x:Class="Grocery.App.Views.ProductCategoriesView"
              x:DataType="vm:ProductCategoriesViewModel"
              Title="ProductCategoriesView">
+
     <Shell.TitleView>
         <Grid>
             <Label Text="{Binding Category.Name}" FontSize="Large" HorizontalOptions="Center" VerticalOptions="Center" />
@@ -17,34 +18,33 @@
             <ColumnDefinition Width="4*"/>
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Border Grid.Row="1" Grid.Column="0"  Stroke="#C49B33" StrokeThickness="4" Padding="10" Margin="10" HorizontalOptions="Center">
-            <CollectionView ItemsSource="{Binding ProductCategories}" Margin="20" HorizontalOptions="Center" >
+        <Border Grid.Column="0" Stroke="#C49B33" StrokeThickness="4" Padding="10" Margin="10" HorizontalOptions="Center">
+            <CollectionView ItemsSource="{Binding ProductCategories}" Margin="20" HorizontalOptions="Center" EmptyView="Deze categorie bevat nog geen producten.">
                 <CollectionView.ItemsLayout>
                     <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
                 </CollectionView.ItemsLayout>
+
                 <CollectionView.Header>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="0.5*"/>
+                            <ColumnDefinition Width="40"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Text="Id" FontAttributes="Bold" HorizontalOptions="End" Margin="0,0,10,0"/>
-                        <Label Grid.Column="1" Text="Naam" FontAttributes="Bold"/>
+                        <Label Text="#" Grid.Column="0" FontAttributes="Bold" HorizontalTextAlignment="Center"/>
+                        <Label Text="Naam" Grid.Column="1" FontAttributes="Bold"/>
                     </Grid>
                 </CollectionView.Header>
+
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="m:ProductCategory">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.5*"/>
+                                <ColumnDefinition Width="40"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Label Grid.Column="0" Text="{Binding ProductId}" HorizontalOptions="End" Margin="0,0,10,0"/>
-                            <Label Grid.Column="1" Text="{Binding Product.Name}"/>
+                            <Label Grid.Column="1"
+                                   Text="{Binding Product.Name}"
+                                   VerticalOptions="Center"/>
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
@@ -54,10 +54,10 @@
         <Border Grid.Row="1" Grid.Column="1" Stroke="#C49B33" StrokeThickness="4" Padding="5" Margin="5" HorizontalOptions="Center">
             <StackLayout>
                 <SearchBar x:Name="searchBar" SearchCommand="{Binding PerformSearchCommand}" SearchCommandParameter="{Binding Text, Source={x:Reference searchBar}}"/>
-                <CollectionView ItemsSource="{Binding AvailableProducts}" Margin="5" HorizontalOptions="Start"
-                SelectionMode="Single"
-                SelectionChangedCommand="{Binding AddProductCommand}"
-                SelectionChangedCommandParameter="{Binding Source={RelativeSource Self}, Path=SelectedItem}">
+                <CollectionView ItemsSource="{Binding AvailableProducts}" Margin="5" WidthRequest="300" HorizontalOptions="Start"
+                    SelectionMode="Single"
+                    SelectionChangedCommand="{Binding AddProductCommand}"
+                    SelectionChangedCommandParameter="{Binding Source={RelativeSource Self}, Path=SelectedItem}">
                     <CollectionView.ItemsLayout>
                         <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
                     </CollectionView.ItemsLayout>
@@ -66,7 +66,6 @@
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="3*"/>
-                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <Label Grid.Column="0" Text="{Binding Name}" VerticalOptions="Center"/>
                                 <Label Grid.Column="1" Text="{Binding Stock}" VerticalOptions="Center" HorizontalOptions="End" Margin="0,0,10,0"/>
@@ -76,12 +75,13 @@
                     <CollectionView.EmptyView>
                         <ContentView>
                             <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
-                                <Label Text="Er zijn geen producten meer om toe te voegen" FontAttributes="Bold" HorizontalTextAlignment="Center"/>
+                                <Label Text="Alle producten zijn al toegevoegd aan de categorie" FontAttributes="Bold" HorizontalTextAlignment="Center"/>
                             </VerticalStackLayout>
                         </ContentView>
                     </CollectionView.EmptyView>
                 </CollectionView>
             </StackLayout>
         </Border>
+
     </Grid>
 </ContentPage>
