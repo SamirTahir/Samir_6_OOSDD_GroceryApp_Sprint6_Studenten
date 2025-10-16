@@ -19,6 +19,9 @@ namespace Grocery.Core.Data.Repositories
                     [Amount] INTEGER NOT NULL
                 )");
 
+            // Ensure unique pair and clean duplicates before creating the unique index
+            EnsureUniquePairIndex();
+
             List<string> insertQueries =
             [
                 @"INSERT OR IGNORE INTO GroceryListItem(GroceryListId, ProductId, Amount) VALUES(1, 1, 3)",
@@ -30,6 +33,51 @@ namespace Grocery.Core.Data.Repositories
             InsertMultipleWithTransaction(insertQueries);
 
             GetAll();
+        }
+
+        // Collapse duplicates and add a UNIQUE index on (GroceryListId, ProductId)
+        private void EnsureUniquePairIndex()
+        {
+            OpenConnection();
+            using var tx = Connection.BeginTransaction();
+
+            // Merge duplicates: keep the lowest Id, sum amounts into it
+            using (var merge = new SqliteCommand(@"
+                WITH d AS (
+                    SELECT MIN(Id) AS KeepId, GroceryListId, ProductId, SUM(Amount) AS Total
+                    FROM GroceryListItem
+                    GROUP BY GroceryListId, ProductId
+                )
+                UPDATE GroceryListItem
+                SET Amount = (SELECT Total FROM d WHERE d.KeepId = GroceryListItem.Id)
+                WHERE Id IN (SELECT KeepId FROM d);
+            ", Connection, tx))
+            {
+                merge.ExecuteNonQuery();
+            }
+
+            // Delete the non-keeper duplicates
+            using (var deleteDups = new SqliteCommand(@"
+                DELETE FROM GroceryListItem
+                WHERE Id NOT IN (
+                    SELECT MIN(Id) FROM GroceryListItem GROUP BY GroceryListId, ProductId
+                );
+            ", Connection, tx))
+            {
+                deleteDups.ExecuteNonQuery();
+            }
+
+            // Create UNIQUE index (idempotent)
+            using (var createIdx = new SqliteCommand(@"
+                CREATE UNIQUE INDEX IF NOT EXISTS IX_GroceryListItem_GroceryListId_ProductId
+                ON GroceryListItem(GroceryListId, ProductId);
+            ", Connection, tx))
+            {
+                createIdx.ExecuteNonQuery();
+            }
+
+            tx.Commit();
+            CloseConnection();
         }
 
         public List<GroceryListItem> GetAll()
@@ -79,18 +127,41 @@ namespace Grocery.Core.Data.Repositories
 
         public GroceryListItem Add(GroceryListItem item)
         {
-            string insertQuery = "INSERT INTO GroceryListItem(GroceryListId, ProductId, Amount) VALUES(@GroceryListId, @ProductId, @Amount) Returning RowId;";
+            // UPSERT: if the (GroceryListId, ProductId) already exists, increase the amount
+            string upsert = @"
+                INSERT INTO GroceryListItem(GroceryListId, ProductId, Amount)
+                VALUES(@GroceryListId, @ProductId, @Amount)
+                ON CONFLICT(GroceryListId, ProductId)
+                DO UPDATE SET Amount = GroceryListItem.Amount + excluded.Amount;
+            ";
+
             OpenConnection();
-            using (SqliteCommand command = new(insertQuery, Connection))
+            using (SqliteCommand command = new(upsert, Connection))
             {
                 command.Parameters.AddWithValue("GroceryListId", item.GroceryListId);
                 command.Parameters.AddWithValue("ProductId", item.ProductId);
                 command.Parameters.AddWithValue("Amount", item.Amount);
-                var rowId = (long?)command.ExecuteScalar();
-                item.Id = (int)(rowId ?? 0);
+                command.ExecuteNonQuery();
             }
+
+            // Fetch the current row (Id and Amount)
+            using (SqliteCommand select = new(@"
+                SELECT Id, Amount FROM GroceryListItem
+                WHERE GroceryListId = @GroceryListId AND ProductId = @ProductId;
+            ", Connection))
+            {
+                select.Parameters.AddWithValue("GroceryListId", item.GroceryListId);
+                select.Parameters.AddWithValue("ProductId", item.ProductId);
+                using var reader = select.ExecuteReader();
+                if (reader.Read())
+                {
+                    item.Id = reader.GetInt32(0);
+                    item.Amount = reader.GetInt32(1);
+                }
+            }
+
             CloseConnection();
-            return Get(item.Id)!;
+            return item;
         }
 
         public GroceryListItem? Delete(GroceryListItem item)

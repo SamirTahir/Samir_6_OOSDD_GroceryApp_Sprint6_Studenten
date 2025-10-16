@@ -15,21 +15,44 @@ namespace Grocery.App.ViewModels
         private readonly IGroceryListItemsService _groceryListItemsService;
         private readonly IProductService _productService;
         private readonly IFileSaverService _fileSaverService;
+        private readonly GlobalViewModel _global;
         private string searchText = "";
+
         public ObservableCollection<GroceryListItem> MyGroceryListItems { get; set; } = [];
         public ObservableCollection<Product> AvailableProducts { get; set; } = [];
 
         [ObservableProperty]
         GroceryList groceryList = new(0, "None", DateOnly.MinValue, "", 0);
+
         [ObservableProperty]
         string myMessage;
 
-        public GroceryListItemsViewModel(IGroceryListItemsService groceryListItemsService, IProductService productService, IFileSaverService fileSaverService)
+        [ObservableProperty]
+        Client client;
+
+        public bool IsAdmin => Client?.Role == Role.Admin;
+
+        public GroceryListItemsViewModel(
+            IGroceryListItemsService groceryListItemsService,
+            IProductService productService,
+            IFileSaverService fileSaverService,
+            GlobalViewModel global)
         {
             _groceryListItemsService = groceryListItemsService;
             _productService = productService;
             _fileSaverService = fileSaverService;
+            _global = global;
+
+            Client = _global.Client;
             Load(groceryList.Id);
+        }
+
+        public override void OnAppearing()
+        {
+            base.OnAppearing();
+            Client = _global.Client; // refresh client from global state
+            OnPropertyChanged(nameof(IsAdmin));
+            Load(GroceryList.Id);    // refresh items & available products
         }
 
         private void Load(int id)
@@ -43,7 +66,7 @@ namespace Grocery.App.ViewModels
         {
             AvailableProducts.Clear();
             foreach (Product p in _productService.GetAll())
-                if (MyGroceryListItems.FirstOrDefault(g => g.ProductId == p.Id) == null  && p.Stock > 0 && (searchText=="" || p.Name.ToLower().Contains(searchText.ToLower())))
+                if (MyGroceryListItems.FirstOrDefault(g => g.ProductId == p.Id) == null && p.Stock > 0 && (searchText == "" || p.Name.ToLower().Contains(searchText.ToLower())))
                     AvailableProducts.Add(p);
         }
 
@@ -58,10 +81,26 @@ namespace Grocery.App.ViewModels
             Dictionary<string, object> paramater = new() { { nameof(GroceryList), GroceryList } };
             await Shell.Current.GoToAsync($"{nameof(ChangeColorView)}?Name={GroceryList.Name}", true, paramater);
         }
+
         [RelayCommand]
         public void AddProduct(Product product)
         {
             if (product == null) return;
+
+            // Prevent duplicates: merge into existing list item
+            var existing = MyGroceryListItems.FirstOrDefault(x => x.ProductId == product.Id);
+            if (existing != null)
+            {
+                if (product.Stock <= 0) return;
+                existing.Amount++;
+                _groceryListItemsService.Update(existing);
+                product.Stock--;
+                _productService.Update(product);
+                OnGroceryListChanged(GroceryList);
+                return;
+            }
+
+            // First time: create a new list item
             GroceryListItem item = new(0, GroceryList.Id, product.Id, 1);
             _groceryListItemsService.Add(item);
             product.Stock--;
@@ -117,6 +156,13 @@ namespace Grocery.App.ViewModels
             item.Product.Stock++;
             _productService.Update(item.Product);
             OnGroceryListChanged(GroceryList);
+        }
+
+        [RelayCommand]
+        public async Task CreateNewProduct()
+        {
+            if (!IsAdmin) return; // defense in depth
+            await Shell.Current.GoToAsync(nameof(AddProductView), true);
         }
     }
 }
